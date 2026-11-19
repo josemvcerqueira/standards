@@ -190,6 +190,8 @@ const folderOverride = (folder, { react, test }) => {
   };
 };
 
+const outsideLayers = [noParentPaths, noDeepImports, noTesting, ...rawModules];
+
 const preset = ({ react }) => ({
   $schema: "../node_modules/oxlint/configuration_schema.json",
   plugins: ["typescript", "import", "unicorn", "oxc", ...(react ? ["react", "jsx-a11y"] : [])],
@@ -222,7 +224,13 @@ const preset = ({ react }) => ({
         message: `Read settings from src/config/env.ts, which parses the environment once at boot ${doc("config")}.`,
       },
     ],
-    "eslint-js/no-restricted-syntax": ["error", ...sleeps],
+    "no-restricted-imports": ["error", { patterns: outsideLayers }],
+    "eslint-js/no-restricted-syntax": [
+      "error",
+      ...dynamicImports(outsideLayers),
+      ...sleeps,
+      ...rawSyntax,
+    ],
     ...(react
       ? {
           "react/react-in-jsx-scope": "off",
@@ -237,6 +245,13 @@ const preset = ({ react }) => ({
     { files: ["src/config/**"], rules: { "eslint-js/no-restricted-properties": "off" } },
     { files: ["src/platform/**"], rules: { "no-console": "off" } },
     { files: ["src/ui/tokens/**"], rules: { "eslint-js/no-restricted-syntax": "off" } },
+    {
+      files: ["scripts/**", "bin/**", "plugin/**", "test/**", "*.config.ts", "*.config.mjs"],
+      rules: {
+        "no-restricted-imports": "off",
+        "eslint-js/no-restricted-syntax": ["error", ...sleeps],
+      },
+    },
     {
       files: [
         ...TESTS,

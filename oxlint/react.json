@@ -62,8 +62,80 @@
         "message": "Read settings from src/config/env.ts, which parses the environment once at boot (STANDARD.md#config)."
       }
     ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "regex": "(^|/)\\.\\.(/|$)",
+            "caseSensitive": true,
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+          },
+          {
+            "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+            "caseSensitive": true,
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "regex": "^(@/|#)(testing)(/|$)",
+            "caseSensitive": true,
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "regex": "^(node:)?(fs|fs/promises|child_process|http|https|http2|net|dgram|worker_threads)$",
+            "caseSensitive": true,
+            "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
+            "regex": "^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(/|$)",
+            "caseSensitive": true,
+            "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
+          }
+        ]
+      }
+    ],
     "eslint-js/no-restricted-syntax": [
       "error",
+      {
+        "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+        "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+      },
+      {
+        "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+        "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+      },
+      {
+        "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+        "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+      },
+      {
+        "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+        "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+      },
+      {
+        "selector": "ImportExpression[source.value=/^(@\\/|#)(testing)(\\/|$)/]",
+        "message": "Production code never imports test helpers (STANDARD.md#tests)."
+      },
+      {
+        "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(testing)(\\/|$)/]",
+        "message": "Production code never imports test helpers (STANDARD.md#tests)."
+      },
+      {
+        "selector": "ImportExpression[source.value=/^(node:)?(fs|fs\\/promises|child_process|http|https|http2|net|dgram|worker_threads)$/]",
+        "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+      },
+      {
+        "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(node:)?(fs|fs\\/promises|child_process|http|https|http2|net|dgram|worker_threads)$/]",
+        "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+      },
+      {
+        "selector": "ImportExpression[source.value=/^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(\\/|$)/]",
+        "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
+      },
+      {
+        "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(\\/|$)/]",
+        "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
+      },
       {
         "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
         "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
@@ -75,6 +147,30 @@
       {
         "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
         "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+      },
+      {
+        "selector": "CallExpression[callee.name='fetch']",
+        "message": "Network access goes through @/platform/http, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+      },
+      {
+        "selector": "CallExpression[callee.name=/^(setTimeout|setInterval|setImmediate)$/]",
+        "message": "Scheduling goes through @/platform/schedule, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+      },
+      {
+        "selector": "CallExpression[callee.object.name='Date'][callee.property.name='now']",
+        "message": "Reading the time goes through @/platform/clock, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+      },
+      {
+        "selector": "NewExpression[callee.name='Date'][arguments.length=0]",
+        "message": "Reading the time goes through @/platform/clock, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+      },
+      {
+        "selector": "CallExpression[callee.object.name='Math'][callee.property.name='random']",
+        "message": "Randomness goes through @/platform/random, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+      },
+      {
+        "selector": "MemberExpression[object.name='console']",
+        "message": "Logging goes through @/platform/log, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
       }
     ],
     "react/react-in-jsx-scope": "off",
@@ -2224,6 +2320,34 @@
       ],
       "rules": {
         "eslint-js/no-restricted-syntax": "off"
+      }
+    },
+    {
+      "files": [
+        "scripts/**",
+        "bin/**",
+        "plugin/**",
+        "test/**",
+        "*.config.ts",
+        "*.config.mjs"
+      ],
+      "rules": {
+        "no-restricted-imports": "off",
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
       }
     },
     {

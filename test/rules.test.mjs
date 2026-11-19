@@ -38,6 +38,7 @@ const expected = [
   ["src/features/home/bad.tsx", 5, "eslint-js(no-restricted-syntax)"],
   ["src/features/home/bad.tsx", 6, "eslint-js(no-restricted-syntax)"],
   ["src/lib/comments.ts", 8, "house(disable-needs-reason)"],
+  ["src/stray.ts", 2, "eslint-js(no-restricted-syntax)"],
   ["src/lib/comments.ts", 14, "house(no-comments)"],
   ["src/lib/impure.ts", 1, "eslint(no-restricted-imports)"],
   ["src/features/home/deep.ts", 1, "eslint(no-restricted-imports)"],

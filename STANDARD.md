@@ -37,6 +37,7 @@ app       entry points: routes, HTTP handlers, CLI, workers
 - A layer imports only from layers below it. `lib`, `data` and `config` never import `auth`, `hooks` or `ui`.
 - Only `app` imports a feature, and a feature never imports another feature. Shared code moves down a layer.
 - Folders reach each other through `@/`, never `../`.
+- Code outside these folders (a stray `src/util.ts`) gets the strictest rules: no runtime access, no `../`, no deep imports.
 - Enforced by: `no-restricted-imports` per folder in the Oxlint presets, including dynamic `import()`.
 
 ## Platform

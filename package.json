@@ -23,7 +23,7 @@
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "lint": "oxlint -c oxlint/base.json --deny-warnings plugin scripts bin test/rules.test.mjs test/verify.test.mjs",
+    "lint": "oxlint --deny-warnings plugin scripts bin test/rules.test.mjs test/verify.test.mjs",
     "build:presets": "node scripts/build-presets.mjs",
     "check:presets": "node scripts/build-presets.mjs && git diff --exit-code oxlint/",
     "format": "oxfmt --check ."
