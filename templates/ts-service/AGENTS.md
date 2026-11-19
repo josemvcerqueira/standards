@@ -8,7 +8,7 @@ A Node 24 TypeScript service built on the Interest Protocol house standard. Read
 
 ## Gate
 
-`npm run gate` (oxfmt, oxlint, tsc, vitest) is the merge check. Hooks run oxfmt and oxlint after every edit and tsc and tests before you finish. Never push with `--no-verify`.
+`npm run gate` (standard check, oxfmt, oxlint, tsc, knip, vitest) is the merge check. Hooks lint after every edit and will not let you finish while the gate fails. Lint, format, compiler, hook and CI config are read-only for agents: change the code, not the rules.
 
 ## Review
 

@@ -1,10 +1,19 @@
 #!/usr/bin/env bash
-# why: Claude Code Stop hook. Claude may not finish a turn with a type error or a failing test.
+# why: Claude Code Stop hook. Claude may not finish while the gate fails. After 5 blocked attempts in a row it may
+# why: stop, so a rule it cannot satisfy reaches a person instead of looping; the gate still blocks the push and CI.
 set -uo pipefail
-active=$(node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(String(JSON.parse(s).stop_hook_active??false)))')
-[ "$active" = "true" ] && exit 0
+session=$(node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(String(JSON.parse(s).session_id??"none")))')
 cd "${CLAUDE_PROJECT_DIR:-.}"
-if ! out=$( { npx --no-install tsc && npx --no-install vitest run --changed; } 2>&1 ); then
-  printf 'Typecheck or tests fail. Fix them before you finish:\n%s\n' "$(printf '%s' "$out" | tail -40)" >&2
-  exit 2
+count_file="${TMPDIR:-/tmp}/gate-blocks-$session"
+if out=$(bash scripts/gate.sh 2>&1); then
+  rm -f "$count_file"
+  exit 0
 fi
+count=$(( $(cat "$count_file" 2>/dev/null || echo 0) + 1 ))
+echo "$count" > "$count_file"
+if [ "$count" -gt 5 ]; then
+  printf 'The gate still fails after 5 attempts. Tell Jose which rule blocks you and why.\n' >&2
+  exit 0
+fi
+printf 'The gate fails, so you are not done. Fix this (attempt %s of 5):\n%s\n' "$count" "$(printf '%s' "$out" | tail -40)" >&2
+exit 2

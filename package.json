@@ -3,7 +3,11 @@
   "version": "0.1.0",
   "description": "Interest Protocol's house standard: Oxlint and oxfmt configs, tsconfig base and lint plugin.",
   "license": "MIT",
+  "bin": {
+    "ip-standards-verify": "./bin/verify.mjs"
+  },
   "files": [
+    "bin",
     "oxlint",
     "plugin",
     "oxfmt.json",
@@ -19,7 +23,7 @@
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "lint": "oxlint -c oxlint/base.json plugin scripts test/rules.test.mjs",
+    "lint": "oxlint -c oxlint/base.json --deny-warnings plugin scripts bin test/rules.test.mjs test/verify.test.mjs",
     "build:presets": "node scripts/build-presets.mjs",
     "check:presets": "node scripts/build-presets.mjs && git diff --exit-code oxlint/",
     "format": "oxfmt --check ."

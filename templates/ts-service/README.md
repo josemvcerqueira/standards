@@ -8,4 +8,10 @@ npm run dev      # tsx watch, GET /health on PORT
 npm run gate     # oxfmt, oxlint, tsc, vitest: the merge check
 ```
 
-Included: Oxlint and oxfmt from `@interest-protocol/standards`, the house tsconfig, zod env parsing at boot, the standard `src/` folders, a lefthook pre-push, and Claude Code hooks that lint after every edit and run tsc and tests before Claude finishes.
+After the first push, make the gate required on `main` (needs repo admin):
+
+```sh
+gh api -X POST repos/OWNER/REPO/rulesets --input .github/ruleset.json
+```
+
+Included: Oxlint and oxfmt from `@interest-protocol/standards`, the house tsconfig, zod env parsing at boot, the standard `src/` folders, lefthook pre-commit and pre-push hooks, a GitHub Actions gate, and Claude Code hooks that block edits to the rules, lint after every edit, and keep Claude working until the gate passes. See STANDARD.md#enforcement.

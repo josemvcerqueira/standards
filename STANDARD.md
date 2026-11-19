@@ -83,6 +83,33 @@ No `any` (use `unknown` and narrow), no non-null `!`, type-only imports inline, 
 - UI PRs carry proof: a screenshot or a Maestro or Playwright run.
 - A review comment that has come up before becomes a lint rule in this package, with a test and a message that names the fix.
 
+## Enforcement
+
+Every rule above fails something. Nothing here is advice to an agent.
+
+| Layer                   | When                           | What fails                                                                                                                                               |
+| ----------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Claude PreToolUse hook  | Before an agent edits a file   | Any edit to `.oxlintrc.json`, `.oxfmtrc.json`, `tsconfig.json`, `knip.json`, `lefthook.yml`, `package.json`, `scripts/gate.sh`, `.claude/` or `.github/` |
+| Claude PostToolUse hook | After every agent edit         | oxlint errors on the package, sent back to the agent with the fix                                                                                        |
+| Claude Stop hook        | When the agent tries to finish | The whole gate. The agent may not stop until it passes (after 5 failed tries it must report the blocking rule to a person)                               |
+| Claude permissions      | Always                         | `--no-verify`, `-n` and `LEFTHOOK=0` are denied                                                                                                          |
+| lefthook pre-commit     | `git commit`                   | Standard check, oxfmt, oxlint, tsc                                                                                                                       |
+| lefthook pre-push       | `git push`                     | The whole gate                                                                                                                                           |
+| GitHub Actions `gate`   | Every PR and push to main      | The whole gate on a clean checkout. Make it a required check (below)                                                                                     |
+
+The gate (`scripts/gate.sh`) runs, in order: `ip-standards-verify`, `oxfmt --check`, `oxlint --deny-warnings`, `tsc` (strict), `knip` (unused files, exports, dependencies), and the tests.
+
+`ip-standards-verify` fails when a repo:
+
+- doesn't extend a preset from this package, sets any rule to `off` or `warn`, or adds ignore patterns
+- doesn't extend `tsconfig.base.json`, or turns off any strict option from it
+- has an `.oxfmtrc.json` that differs from `oxfmt.json`
+- disables an architecture or type-safety rule in source (`no-restricted-*`, `house/*`, `no-explicit-any`, `no-non-null-assertion`, `import/no-cycle`), uses a file-wide disable, or uses `@ts-ignore` / `@ts-nocheck`
+
+Repos may add rules. They may never weaken them. A rule that is wrong gets changed here, in one place, for everyone.
+
+**Required check.** Hooks can be skipped on a laptop; the required check can't. In each repo: Settings → Rules → Rulesets → New branch ruleset → target `main` → turn on _Require a pull request before merging_, _Require status checks to pass_ with the check `gate`, and _Block force pushes_. Or run `gh api -X POST repos/OWNER/REPO/rulesets --input .github/ruleset.json`. Hosted Actions must be paid for this to run; until then the pre-push gate is the last line.
+
 ## Changing the standard
 
 Edit `scripts/build-presets.mjs`, run `npm run build:presets`, add a fixture and a test line, then release a new version. Repos pick it up by bumping the package.

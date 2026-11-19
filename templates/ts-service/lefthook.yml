@@ -1,16 +1,19 @@
 assert_lefthook_installed: true
-# why: quick checks before a push. The merge check is still scripts/gate.sh. Never push with --no-verify.
-pre-push:
+# why: commits and pushes fail on the same rules as the gate. Never use --no-verify; CI runs the gate anyway.
+pre-commit:
   parallel: true
   jobs:
+    - name: standard
+      run: npx --no-install ip-standards-verify
     - name: oxfmt
-      run: npx --no-install oxfmt --check {push_files}
+      run: npx --no-install oxfmt --check {staged_files}
     - name: oxlint
       glob: "*.{ts,tsx,js,mjs}"
       run: npx --no-install oxlint --deny-warnings src
     - name: tsc
       glob: "*.{ts,tsx}"
       run: npx --no-install tsc
-    - name: vitest
-      glob: "*.{ts,tsx}"
-      run: npx --no-install vitest related --run {push_files}
+pre-push:
+  jobs:
+    - name: gate
+      run: bash scripts/gate.sh
