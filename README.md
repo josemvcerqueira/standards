@@ -11,7 +11,7 @@ The house standard for new Interest Protocol code: Oxlint and oxfmt configs, a t
 | `tsconfig.base.json`   | Strict compiler options                                                 |
 | `test/`                | Proof that every rule fires and that weakening the config fails          |
 
-Start a new repo from [template-service](https://github.com/interest-protocol/template-service) (Use this template), or add it to a repo by hand:
+Start a new repo from [template-service](https://github.com/josemvcerqueira/template-service) (Use this template), or add it to a repo by hand:
 
 ```jsonc
 // .oxlintrc.json
@@ -20,4 +20,4 @@ Start a new repo from [template-service](https://github.com/interest-protocol/te
 
 Change a rule: edit `scripts/build-presets.mjs`, run `npm run build:presets`, add a fixture and a line in `test/rules.test.mjs`, then `npm test`.
 
-Release: bump `version`, tag `vX.Y.Z`, push the tag. Repos install `github:interest-protocol/standards#vX.Y.Z` and pick up rule changes by bumping that tag.
+Release: bump `version`, tag `vX.Y.Z`, push the tag. Repos install `github:josemvcerqueira/standards#vX.Y.Z` and pick up rule changes by bumping that tag.
