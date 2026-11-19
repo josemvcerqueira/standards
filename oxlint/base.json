@@ -1,0 +1,1366 @@
+{
+  "$schema": "../node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "typescript",
+    "import",
+    "unicorn",
+    "oxc"
+  ],
+  "jsPlugins": [
+    {
+      "name": "eslint-js",
+      "specifier": "oxlint-plugin-eslint"
+    },
+    {
+      "name": "house",
+      "specifier": "@interest-protocol/standards/plugin"
+    },
+    "eslint-plugin-sonarjs"
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error"
+  },
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "typescript/no-non-null-assertion": "error",
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "fixStyle": "inline-type-imports"
+      }
+    ],
+    "typescript/ban-ts-comment": [
+      "error",
+      {
+        "ts-expect-error": "allow-with-description"
+      }
+    ],
+    "eqeqeq": "error",
+    "curly": [
+      "error",
+      "all"
+    ],
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-console": "error",
+    "import/no-cycle": "error",
+    "import/no-default-export": "error",
+    "sonarjs/cognitive-complexity": [
+      "error",
+      15
+    ],
+    "house/no-comments": "error",
+    "house/disable-needs-reason": "error",
+    "eslint-js/no-restricted-properties": [
+      "error",
+      {
+        "object": "process",
+        "property": "env",
+        "message": "Read settings from src/config/env.ts, which parses the environment once at boot (STANDARD.md#config)."
+      }
+    ],
+    "eslint-js/no-restricted-syntax": [
+      "error",
+      {
+        "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+        "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+      },
+      {
+        "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+        "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+      },
+      {
+        "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+        "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/lib/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(auth|hooks|ui)(/|$)",
+                "caseSensitive": true,
+                "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(features)(/|$)",
+                "caseSensitive": true,
+                "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(testing)(/|$)",
+                "caseSensitive": true,
+                "message": "Production code never imports test helpers (STANDARD.md#tests)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/data/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(auth|hooks|ui)(/|$)",
+                "caseSensitive": true,
+                "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(features)(/|$)",
+                "caseSensitive": true,
+                "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(testing)(/|$)",
+                "caseSensitive": true,
+                "message": "Production code never imports test helpers (STANDARD.md#tests)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/config/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(auth|hooks|ui)(/|$)",
+                "caseSensitive": true,
+                "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(features)(/|$)",
+                "caseSensitive": true,
+                "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(testing)(/|$)",
+                "caseSensitive": true,
+                "message": "Production code never imports test helpers (STANDARD.md#tests)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/auth/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(features)(/|$)",
+                "caseSensitive": true,
+                "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(testing)(/|$)",
+                "caseSensitive": true,
+                "message": "Production code never imports test helpers (STANDARD.md#tests)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/hooks/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(features)(/|$)",
+                "caseSensitive": true,
+                "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(testing)(/|$)",
+                "caseSensitive": true,
+                "message": "Production code never imports test helpers (STANDARD.md#tests)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/ui/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(features)(/|$)",
+                "caseSensitive": true,
+                "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(testing)(/|$)",
+                "caseSensitive": true,
+                "message": "Production code never imports test helpers (STANDARD.md#tests)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/features/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(features)(/|$)",
+                "caseSensitive": true,
+                "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(testing)(/|$)",
+                "caseSensitive": true,
+                "message": "Production code never imports test helpers (STANDARD.md#tests)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/app/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(testing)(/|$)",
+                "caseSensitive": true,
+                "message": "Production code never imports test helpers (STANDARD.md#tests)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/lib/**/*.test.ts",
+        "src/lib/**/*.test.tsx"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(auth|hooks|ui)(/|$)",
+                "caseSensitive": true,
+                "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(features)(/|$)",
+                "caseSensitive": true,
+                "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/data/**/*.test.ts",
+        "src/data/**/*.test.tsx"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(auth|hooks|ui)(/|$)",
+                "caseSensitive": true,
+                "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(features)(/|$)",
+                "caseSensitive": true,
+                "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/config/**/*.test.ts",
+        "src/config/**/*.test.tsx"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(auth|hooks|ui)(/|$)",
+                "caseSensitive": true,
+                "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(features)(/|$)",
+                "caseSensitive": true,
+                "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/auth/**/*.test.ts",
+        "src/auth/**/*.test.tsx"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(features)(/|$)",
+                "caseSensitive": true,
+                "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/hooks/**/*.test.ts",
+        "src/hooks/**/*.test.tsx"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(features)(/|$)",
+                "caseSensitive": true,
+                "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/ui/**/*.test.ts",
+        "src/ui/**/*.test.tsx"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(features)(/|$)",
+                "caseSensitive": true,
+                "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/features/**/*.test.ts",
+        "src/features/**/*.test.tsx"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(features)(/|$)",
+                "caseSensitive": true,
+                "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/app/**/*.test.ts",
+        "src/app/**/*.test.tsx"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(app)(/|$)",
+                "caseSensitive": true,
+                "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+              },
+              {
+                "regex": "(^|/)\\.\\.(/|$)",
+                "caseSensitive": true,
+                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              }
+            ]
+          }
+        ],
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/config/**"
+      ],
+      "rules": {
+        "eslint-js/no-restricted-properties": "off"
+      }
+    },
+    {
+      "files": [
+        "src/ui/tokens/**"
+      ],
+      "rules": {
+        "eslint-js/no-restricted-syntax": "off"
+      }
+    },
+    {
+      "files": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "src/testing/**",
+        "scripts/**",
+        "*.config.ts",
+        "*.config.mjs",
+        "src/app/**/page.tsx",
+        "src/app/**/layout.tsx",
+        "src/app/**/route.ts"
+      ],
+      "rules": {
+        "import/no-default-export": "off",
+        "no-console": "off"
+      }
+    }
+  ]
+}

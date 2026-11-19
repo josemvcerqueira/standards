@@ -1,0 +1,16 @@
+assert_lefthook_installed: true
+# why: quick checks before a push. The merge check is still scripts/gate.sh. Never push with --no-verify.
+pre-push:
+  parallel: true
+  jobs:
+    - name: oxfmt
+      run: npx --no-install oxfmt --check {push_files}
+    - name: oxlint
+      glob: "*.{ts,tsx,js,mjs}"
+      run: npx --no-install oxlint --deny-warnings src
+    - name: tsc
+      glob: "*.{ts,tsx}"
+      run: npx --no-install tsc
+    - name: vitest
+      glob: "*.{ts,tsx}"
+      run: npx --no-install vitest related --run {push_files}
