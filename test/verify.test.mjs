@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 
 const verify = new URL("../bin/verify.mjs", import.meta.url).pathname;
-const template = new URL("../templates/ts-service/", import.meta.url).pathname;
+const template = new URL("./verify-repo/", import.meta.url).pathname;
 
 const repo = (change) => {
   const dir = mkdtempSync(join(tmpdir(), "verify-"));

@@ -9,9 +9,9 @@ The house standard for new Interest Protocol code: Oxlint and oxfmt configs, a t
 | `plugin/`              | House rules Oxlint does not ship: `no-comments`, `disable-needs-reason` |
 | `oxfmt.json`           | Formatter settings, copied to `.oxfmtrc.json` in each repo              |
 | `tsconfig.base.json`   | Strict compiler options                                                 |
-| `templates/ts-service` | A Node service that starts on this standard                             |
+| `test/`                | Proof that every rule fires and that weakening the config fails          |
 
-Use it in a repo:
+Start a new repo from [template-service](https://github.com/interest-protocol/template-service) (Use this template), or add it to a repo by hand:
 
 ```jsonc
 // .oxlintrc.json
@@ -19,3 +19,5 @@ Use it in a repo:
 ```
 
 Change a rule: edit `scripts/build-presets.mjs`, run `npm run build:presets`, add a fixture and a line in `test/rules.test.mjs`, then `npm test`.
+
+Release: bump `version`, tag `vX.Y.Z`, push the tag. Repos install `github:interest-protocol/standards#vX.Y.Z` and pick up rule changes by bumping that tag.

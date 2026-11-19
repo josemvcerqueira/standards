@@ -39,6 +39,12 @@ const expected = [
   ["src/features/home/bad.tsx", 6, "eslint-js(no-restricted-syntax)"],
   ["src/lib/comments.ts", 8, "house(disable-needs-reason)"],
   ["src/lib/comments.ts", 14, "house(no-comments)"],
+  ["src/lib/impure.ts", 1, "eslint(no-restricted-imports)"],
+  ["src/features/home/raw.ts", 1, "eslint(no-restricted-imports)"],
+  ["src/features/home/raw.ts", 2, "eslint(no-restricted-imports)"],
+  ["src/features/home/raw.ts", 4, "eslint-js(no-restricted-syntax)"],
+  ["src/features/home/raw.ts", 5, "eslint-js(no-restricted-syntax)"],
+  ["src/features/home/raw.ts", 6, "eslint-js(no-restricted-syntax)"],
 ];
 
 for (const [file, line, rule] of expected) {
@@ -53,6 +59,7 @@ test("allowed comments, reasoned disables, tokens, config and hooks pass", () =>
     "src/hooks/use-tick.ts",
     "src/config/env.ts",
     "src/ui/tokens/colors.ts",
+    "src/platform/clock.ts",
   ];
   const noise = found.filter((d) => cleanFiles.includes(d.file));
   assert.deepEqual(noise, []);

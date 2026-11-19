@@ -3,7 +3,7 @@
 import { writeFileSync } from "node:fs";
 
 const doc = (section) => `(STANDARD.md#${section})`;
-const LAYERS = ["lib", "data", "config", "auth", "hooks", "ui", "features", "app"];
+const LAYERS = ["lib", "platform", "config", "data", "auth", "hooks", "ui", "features", "app"];
 
 const blocks = (folders, message) => ({
   regex: `^@/(${folders.join("|")})(/|$)`,
@@ -25,6 +25,26 @@ const noAboveData = blocks(
   ["auth", "hooks", "ui"],
   `@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them ${doc("folders")}.`,
 );
+const noPlatform = blocks(
+  ["platform"],
+  `@/lib is pure: it never touches the runtime. Move this to @/platform ${doc("platform")}.`,
+);
+const noAbovePlatform = blocks(
+  ["config", "data", "auth", "hooks", "ui", "features", "app"],
+  `@/platform wraps the runtime and knows nothing of the app above it ${doc("platform")}.`,
+);
+const rawModules = [
+  {
+    regex: "^(node:)?(fs|fs/promises|child_process|http|https|http2|net|dgram|worker_threads)$",
+    caseSensitive: true,
+    message: `Raw runtime modules live behind @/platform. Use or extend a wrapper there ${doc("platform")}.`,
+  },
+  {
+    regex: "^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(/|$)",
+    caseSensitive: true,
+    message: `Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there ${doc("platform")}.`,
+  },
+];
 const noTesting = blocks(
   ["testing"],
   `Production code never imports test helpers ${doc("tests")}.`,
@@ -55,15 +75,42 @@ const sleeps = [
     message: sleepMessage,
   },
 ];
+const platformMessage = (what, wrapper) =>
+  `${what} goes through @/platform/${wrapper}, so it can be faked in tests and changed in one place ${doc("platform")}.`;
+const rawSyntax = [
+  {
+    selector: "CallExpression[callee.name='fetch']",
+    message: platformMessage("Network access", "http"),
+  },
+  {
+    selector: "CallExpression[callee.name=/^(setTimeout|setInterval|setImmediate)$/]",
+    message: platformMessage("Scheduling", "schedule"),
+  },
+  {
+    selector: "CallExpression[callee.object.name='Date'][callee.property.name='now']",
+    message: platformMessage("Reading the time", "clock"),
+  },
+  {
+    selector: "NewExpression[callee.name='Date'][arguments.length=0]",
+    message: platformMessage("Reading the time", "clock"),
+  },
+  {
+    selector: "CallExpression[callee.object.name='Math'][callee.property.name='random']",
+    message: platformMessage("Randomness", "random"),
+  },
+  {
+    selector: "MemberExpression[object.name='console']",
+    message: platformMessage("Logging", "log"),
+  },
+];
 const timerWorkarounds = [
   {
-    selector:
-      "CallExpression[callee.name=/^(setTimeout|requestAnimationFrame|requestIdleCallback)$/]",
+    selector: "CallExpression[callee.name=/^(requestAnimationFrame|requestIdleCallback)$/]",
     message: sleepMessage,
   },
   {
     selector:
-      "CallExpression[callee.property.name=/^(setTimeout|requestAnimationFrame|requestIdleCallback)$/]",
+      "CallExpression[callee.property.name=/^(requestAnimationFrame|requestIdleCallback)$/]",
     message: sleepMessage,
   },
 ];
@@ -99,7 +146,8 @@ const tokens = [
 ];
 
 const folderImports = {
-  lib: [noAboveData, noFeatures, noApp, noParentPaths],
+  lib: [noPlatform, noAboveData, noFeatures, noApp, noParentPaths],
+  platform: [noAbovePlatform, noParentPaths],
   data: [noAboveData, noFeatures, noApp, noParentPaths],
   config: [noAboveData, noFeatures, noApp, noParentPaths],
   auth: [noFeatures, noApp, noParentPaths],
@@ -112,11 +160,17 @@ const folderImports = {
 const TESTS = ["**/*.test.ts", "**/*.test.tsx", "src/testing/**"];
 
 const folderOverride = (folder, { react, test }) => {
-  const imports = test ? folderImports[folder] : [...folderImports[folder], noTesting];
+  const wrapsRuntime = folder === "platform" || test;
+  const imports = [
+    ...folderImports[folder],
+    ...(test ? [] : [noTesting]),
+    ...(wrapsRuntime ? [] : rawModules),
+  ];
   const uiCode = react && !test && ["ui", "features", "app"].includes(folder);
   const syntax = [
     ...dynamicImports(imports),
     ...sleeps,
+    ...(wrapsRuntime ? [] : rawSyntax),
     ...(uiCode ? [...effects, ...timerWorkarounds, ...tokens] : []),
   ];
   return {
@@ -175,6 +229,7 @@ const preset = ({ react }) => ({
     ...LAYERS.map((folder) => folderOverride(folder, { react, test: false })),
     ...LAYERS.map((folder) => folderOverride(folder, { react, test: true })),
     { files: ["src/config/**"], rules: { "eslint-js/no-restricted-properties": "off" } },
+    { files: ["src/platform/**"], rules: { "no-console": "off" } },
     { files: ["src/ui/tokens/**"], rules: { "eslint-js/no-restricted-syntax": "off" } },
     {
       files: [

@@ -5,11 +5,11 @@ export function parseCents(raw: string): number {
   return Number.parseInt(raw, 10);
 }
 
-// oxlint-disable-next-line no-console
-console.info(parseCents("1"));
+// oxlint-disable-next-line no-debugger
+debugger;
 
-// oxlint-disable-next-line no-console -- startup banner for the CLI
-console.info(parseCents("2"));
+// oxlint-disable-next-line no-debugger -- paused here while tracing the venue feed
+debugger;
 
 /** A doc block that is not on an export. */
 const unused = 1;
