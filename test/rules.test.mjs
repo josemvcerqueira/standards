@@ -41,6 +41,7 @@ const expected = [
   ["src/lib/comments.ts", 14, "house(no-comments)"],
   ["src/lib/impure.ts", 1, "eslint(no-restricted-imports)"],
   ["src/features/home/deep.ts", 1, "eslint(no-restricted-imports)"],
+  ["src/lib/hash-alias.ts", 1, "eslint(no-restricted-imports)"],
   ["src/features/home/raw.ts", 1, "eslint(no-restricted-imports)"],
   ["src/features/home/raw.ts", 2, "eslint(no-restricted-imports)"],
   ["src/features/home/raw.ts", 4, "eslint-js(no-restricted-syntax)"],

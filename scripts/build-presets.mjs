@@ -6,7 +6,7 @@ const doc = (section) => `(STANDARD.md#${section})`;
 const LAYERS = ["lib", "platform", "config", "data", "auth", "hooks", "ui", "features", "app"];
 
 const blocks = (folders, message) => ({
-  regex: `^@/(${folders.join("|")})(/|$)`,
+  regex: `^(@/|#)(${folders.join("|")})(/|$)`,
   caseSensitive: true,
   message,
 });
@@ -14,7 +14,7 @@ const blocks = (folders, message) => ({
 const noParentPaths = {
   regex: "(^|/)\\.\\.(/|$)",
   caseSensitive: true,
-  message: `Folders reach each other through @/, never ../ ${doc("folders")}.`,
+  message: `Folders reach each other through @/ (or #folder/ in a monorepo), never ../ ${doc("folders")}.`,
 };
 const noFeatures = blocks(
   ["features"],
