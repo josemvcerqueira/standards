@@ -45,6 +45,11 @@ const rawModules = [
     message: `Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there ${doc("platform")}.`,
   },
 ];
+const noDeepImports = {
+  regex: "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+  caseSensitive: true,
+  message: `Import a workspace package through its public entry, never its internals. Export what you need from the package's index ${doc("monorepo")}.`,
+};
 const noTesting = blocks(
   ["testing"],
   `Production code never imports test helpers ${doc("tests")}.`,
@@ -163,6 +168,7 @@ const folderOverride = (folder, { react, test }) => {
   const wrapsRuntime = folder === "platform" || test;
   const imports = [
     ...folderImports[folder],
+    noDeepImports,
     ...(test ? [] : [noTesting]),
     ...(wrapsRuntime ? [] : rawModules),
   ];

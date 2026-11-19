@@ -43,16 +43,25 @@ app       entry points: routes, HTTP handlers, CLI, workers
 
 Our lightweight version of the talk's Dune: product code never touches raw runtime APIs. `src/platform/` wraps them, and everything above it calls the wrappers, so tests can fake them and a change (timeouts, logging format, a driver swap) happens in one file.
 
-| Raw API | Use instead |
-| --- | --- |
-| `fetch`, `axios`, `undici`, `got`, `ky` | `@/platform/http` (`fetchJson` with a zod schema and a timeout) |
-| `Date.now()`, `new Date()` | `@/platform/clock` |
-| `setTimeout`, `setInterval`, `setImmediate` | a wrapper in `@/platform` that names the job |
-| `console.*` | `@/platform/log` |
-| `Math.random()` | `@/platform/random` |
-| `node:fs`, `node:http`, `node:child_process`, `pg`, `redis` and similar | a wrapper in `@/platform` |
+| Raw API                                                                 | Use instead                                                     |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `fetch`, `axios`, `undici`, `got`, `ky`                                 | `@/platform/http` (`fetchJson` with a zod schema and a timeout) |
+| `Date.now()`, `new Date()`                                              | `@/platform/clock`                                              |
+| `setTimeout`, `setInterval`, `setImmediate`                             | a wrapper in `@/platform` that names the job                    |
+| `console.*`                                                             | `@/platform/log`                                                |
+| `Math.random()`                                                         | `@/platform/random`                                             |
+| `node:fs`, `node:http`, `node:child_process`, `pg`, `redis` and similar | a wrapper in `@/platform`                                       |
 
 `@/platform` imports nothing from the app above it, and `@/lib` never imports `@/platform`. Tests may use raw APIs. The wrappers live in each repo (they start from the template), and the bans live in this package. Enforced by: `no-restricted-imports` and `no-restricted-syntax` in every folder except `src/platform/`.
+
+## Monorepo
+
+Monorepos use npm workspaces and Turborepo: `apps/*` are deployables (service, Next.js, Expo), `packages/*` are shared code. Each workspace has the standard `src/` folders and its own `.oxlintrc.json` (base or react preset) and `tsconfig.json`; oxfmt, hooks, CI and this package are installed once at the root.
+
+- Apps import packages. A package never depends on an app. Enforced by: `ip-standards-verify` reading each workspace's `package.json`.
+- Every package declares `exports`, its public entry. Nothing imports another package's `src/`, `dist/`, `lib/` or `internal/`. Enforced by: `exports` (TypeScript and Node refuse other paths), `ip-standards-verify`, and `no-restricted-imports`.
+- No `../` across workspaces. Enforced by: `no-restricted-imports`.
+- The gate runs from the root on affected workspaces only (`turbo run … --affected`); `ip-standards-verify` checks every workspace.
 
 ## Tests
 

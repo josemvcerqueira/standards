@@ -117,6 +117,11 @@
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
               },
               {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
                 "regex": "^@/(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
@@ -175,6 +180,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
@@ -259,6 +272,11 @@
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
               },
               {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
                 "regex": "^@/(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
@@ -283,6 +301,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
@@ -337,6 +363,11 @@
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
               },
               {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
                 "regex": "^@/(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
@@ -387,6 +418,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
@@ -481,6 +520,11 @@
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
               },
               {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
                 "regex": "^@/(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
@@ -531,6 +575,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
@@ -620,6 +672,11 @@
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
               },
               {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
                 "regex": "^@/(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
@@ -662,6 +719,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
@@ -751,6 +816,11 @@
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
               },
               {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
                 "regex": "^@/(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
@@ -793,6 +863,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
@@ -882,6 +960,11 @@
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
               },
               {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
                 "regex": "^@/(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
@@ -924,6 +1007,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
@@ -1041,6 +1132,11 @@
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
               },
               {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
                 "regex": "^@/(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
@@ -1083,6 +1179,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
@@ -1195,6 +1299,11 @@
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
               },
               {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
                 "regex": "^@/(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
@@ -1229,6 +1338,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
@@ -1355,6 +1472,11 @@
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1402,6 +1524,14 @@
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
           },
           {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           },
@@ -1435,6 +1565,11 @@
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1456,6 +1591,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1501,6 +1644,11 @@
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1538,6 +1686,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1583,6 +1739,11 @@
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1620,6 +1781,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1660,6 +1829,11 @@
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1689,6 +1863,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1729,6 +1911,11 @@
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1758,6 +1945,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1798,6 +1993,11 @@
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1827,6 +2027,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1867,6 +2075,11 @@
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1896,6 +2109,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1931,6 +2152,11 @@
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
                 "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1952,6 +2178,14 @@
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
             "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",

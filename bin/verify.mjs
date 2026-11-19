@@ -1,13 +1,17 @@
 #!/usr/bin/env node
 // why: lint rules only bind if nobody can quietly switch them off. This check fails the gate when a repo
 // why: weakens its lint, format or compiler settings, or disables a protected rule in source.
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
-const root = process.cwd();
+const repoRoot = process.cwd();
+let root = repoRoot;
 const standards = new URL("../", import.meta.url);
 const problems = [];
-const fail = (where, what) => problems.push(`${where}: ${what} (STANDARD.md#enforcement)`);
+const fail = (where, what) => {
+  const prefix = root === repoRoot ? "" : `${relative(repoRoot, root)}/`;
+  problems.push(`${prefix}${where}: ${what} (STANDARD.md#enforcement)`);
+};
 
 const readJson = (path) => {
   try {
@@ -105,6 +109,9 @@ function* sourceFiles(dir) {
 }
 
 function checkSource() {
+  if (!existsSync(join(root, "src"))) {
+    return;
+  }
   for (const path of sourceFiles(join(root, "src"))) {
     const file = relative(root, path);
     readFileSync(path, "utf8")
@@ -133,10 +140,62 @@ function checkSource() {
   }
 }
 
-checkLintConfig();
-checkTsconfig();
+function workspaceDirs(patterns) {
+  return patterns.flatMap((pattern) => {
+    if (!pattern.endsWith("/*")) {
+      return [join(repoRoot, pattern)];
+    }
+    const parent = join(repoRoot, pattern.slice(0, -2));
+    return readdirSync(parent)
+      .map((name) => join(parent, name))
+      .filter((path) => statSync(path).isDirectory());
+  });
+}
+
+function checkWorkspaceGraph(dirs) {
+  const manifests = dirs.map((dir) => ({
+    dir,
+    json: JSON.parse(readFileSync(join(dir, "package.json"), "utf8")),
+  }));
+  const appNames = new Set(
+    manifests
+      .filter(({ dir }) => relative(repoRoot, dir).startsWith("apps/"))
+      .map(({ json }) => json.name),
+  );
+  for (const { dir, json } of manifests) {
+    root = dir;
+    const isPackage = relative(repoRoot, dir).startsWith("packages/");
+    if (isPackage && json.exports === undefined) {
+      fail("package.json", 'a workspace package must declare "exports", its public entry');
+    }
+    const deps = { ...json.dependencies, ...json.devDependencies, ...json.peerDependencies };
+    for (const name of Object.keys(deps)) {
+      if (appNames.has(name)) {
+        fail("package.json", `depends on the app ${name}; apps import packages, never the reverse`);
+      }
+    }
+  }
+  root = repoRoot;
+}
+
+const manifestPath = join(repoRoot, "package.json");
+const rootManifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, "utf8")) : {};
 checkFormatConfig();
-checkSource();
+if (Array.isArray(rootManifest.workspaces)) {
+  const dirs = workspaceDirs(rootManifest.workspaces);
+  for (const dir of dirs) {
+    root = dir;
+    checkLintConfig();
+    checkTsconfig();
+    checkSource();
+  }
+  checkWorkspaceGraph(dirs);
+  root = repoRoot;
+} else {
+  checkLintConfig();
+  checkTsconfig();
+  checkSource();
+}
 
 if (problems.length > 0) {
   process.stderr.write(

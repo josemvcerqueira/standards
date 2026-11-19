@@ -1,6 +1,6 @@
 {
   "name": "@interest-protocol/standards",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Interest Protocol's house standard: Oxlint and oxfmt configs, tsconfig base and lint plugin.",
   "license": "MIT",
   "bin": {

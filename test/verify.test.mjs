@@ -81,3 +81,53 @@ for (const [name, change, message] of failures) {
     assert.match(result.stderr, new RegExp(message));
   });
 }
+
+const monorepo = (change) => {
+  const dir = mkdtempSync(join(tmpdir(), "verify-mono-"));
+  cpSync(join(template, ".oxfmtrc.json"), join(dir, ".oxfmtrc.json"));
+  writeFileSync(join(dir, "package.json"), '{"name":"root","workspaces":["apps/*","packages/*"]}');
+  const workspace = (path, manifest) => {
+    mkdirSync(join(dir, path, "src"), { recursive: true });
+    for (const file of [".oxlintrc.json", "tsconfig.json"]) {
+      cpSync(join(template, file), join(dir, path, file));
+    }
+    writeFileSync(join(dir, path, "package.json"), JSON.stringify(manifest));
+    writeFileSync(join(dir, path, "src/index.ts"), "export const ok = 1;\n");
+  };
+  workspace("apps/api", { name: "@acme/api", dependencies: { "@acme/core": "*" } });
+  workspace("packages/core", { name: "@acme/core", exports: { ".": "./src/index.ts" } });
+  change?.(dir, workspace);
+  return spawnSync(process.execPath, [verify], { cwd: dir, encoding: "utf8" });
+};
+
+test("a monorepo with apps importing packages passes", () => {
+  const result = monorepo();
+  assert.equal(result.status, 0, result.stderr);
+});
+
+test("fails when a package depends on an app", () => {
+  const result = monorepo((_, workspace) =>
+    workspace("packages/ui", {
+      name: "@acme/ui",
+      exports: { ".": "./src/index.ts" },
+      dependencies: { "@acme/api": "*" },
+    }),
+  );
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /packages\/ui\/package\.json: depends on the app @acme\/api/);
+});
+
+test("fails when a package has no public entry", () => {
+  const result = monorepo((_, workspace) => workspace("packages/raw", { name: "@acme/raw" }));
+  assert.match(
+    result.stderr,
+    /packages\/raw\/package\.json: a workspace package must declare "exports"/,
+  );
+});
+
+test("checks every workspace's lint config", () => {
+  const result = monorepo((dir) =>
+    writeFileSync(join(dir, "apps/api/.oxlintrc.json"), '{"rules":{}}'),
+  );
+  assert.match(result.stderr, /apps\/api\/\.oxlintrc\.json: must extend/);
+});
