@@ -2,16 +2,18 @@
 
 The house standard for new Interest Protocol code: Oxlint and oxfmt configs, a tsconfig base, and a small lint plugin. Read [STANDARD.md](STANDARD.md) for the rules and what enforces each one.
 
-| Path                 | What it is                                                              |
-| -------------------- | ----------------------------------------------------------------------- |
-| `oxlint/base.json`   | Lint preset for TypeScript code                                         |
-| `oxlint/react.json`  | The base preset plus React, effects and design-token rules              |
-| `plugin/`            | House rules Oxlint does not ship: `no-comments`, `disable-needs-reason` |
-| `oxfmt.json`         | Formatter settings, copied to `.oxfmtrc.json` in each repo              |
-| `tsconfig.base.json` | Strict compiler options                                                 |
-| `test/`              | Proof that every rule fires and that weakening the config fails         |
+| Path                   | What it is                                                                                        |
+| ---------------------- | ------------------------------------------------------------------------------------------------- |
+| `oxlint/base.json`     | Lint preset for TypeScript code                                                                   |
+| `oxlint/react.json`    | The base preset plus React, effects and design-token rules                                        |
+| `oxlint/effect.json`   | The base preset plus Effect v4 rules: imports, style, errors, services, HttpApi layout, libraries |
+| `plugin/`              | House rules Oxlint does not ship: `no-comments`, `disable-needs-reason`                           |
+| `oxfmt.json`           | Formatter settings, copied to `.oxfmtrc.json` in each repo                                        |
+| `tsconfig.base.json`   | Strict compiler options                                                                           |
+| `tsconfig.effect.json` | The base options plus the Effect language service and its diagnostic severities                   |
+| `test/`                | Proof that every rule fires and that weakening the config fails                                   |
 
-Start a new repo from [template-service](https://github.com/josemvcerqueira/template-service) (Use this template), or add it to a repo by hand:
+Start a new repo from [template-service](https://github.com/josemvcerqueira/template-service), or [template-service-effect](https://github.com/josemvcerqueira/template-service-effect) for Effect (Use this template), or add it to a repo by hand:
 
 ```jsonc
 // .oxlintrc.json

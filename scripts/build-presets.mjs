@@ -1,6 +1,13 @@
 // why: Oxlint overrides replace a rule's options instead of merging them, so each folder's import and syntax
-// why: rules are assembled here once and written out whole to oxlint/base.json and oxlint/react.json.
+// why: rules are assembled here once and written out whole to oxlint/base.json, react.json and effect.json.
 import { writeFileSync } from "node:fs";
+import {
+  effectImports,
+  effectRawSyntax,
+  effectRoles,
+  effectRuleSettings,
+  effectSyntax,
+} from "./effect-rules.mjs";
 
 const doc = (section) => `(STANDARD.md#${section})`;
 const LAYERS = ["lib", "platform", "config", "data", "auth", "hooks", "ui", "features", "app"];
@@ -91,6 +98,10 @@ const sleeps = [
 ];
 const platformMessage = (what, wrapper) =>
   `${what} goes through @/platform/${wrapper}, so it can be faked in tests and changed in one place ${doc("platform")}.`;
+const bunApis = {
+  selector: "MemberExpression[object.name='Bun'][property.name!=/^sleep(Sync)?$/]",
+  message: `Bun's runtime APIs (Bun.serve, Bun.file, Bun.spawn, Bun.env...) live behind @/platform. Use or extend a wrapper there ${doc("platform")}.`,
+};
 const rawSyntax = [
   {
     selector: "CallExpression[callee.name='fetch']",
@@ -116,10 +127,7 @@ const rawSyntax = [
     selector: "MemberExpression[object.name='console']",
     message: platformMessage("Logging", "log"),
   },
-  {
-    selector: "MemberExpression[object.name='Bun'][property.name!=/^sleep(Sync)?$/]",
-    message: `Bun's runtime APIs (Bun.serve, Bun.file, Bun.spawn, Bun.env...) live behind @/platform. Use or extend a wrapper there ${doc("platform")}.`,
-  },
+  bunApis,
 ];
 const timerWorkarounds = [
   {
@@ -177,25 +185,27 @@ const folderImports = {
 
 const TESTS = ["**/*.test.ts", "**/*.test.tsx", "src/testing/**"];
 
-const folderOverride = (folder, { react, test }) => {
+const folderOverride = (folder, { react, effect, test, role }) => {
   const wrapsRuntime = folder === "platform" || test;
   const imports = [
     ...folderImports[folder],
     noDeepImports,
     ...(test ? [] : [noTesting]),
     ...(wrapsRuntime ? [] : rawModules),
+    ...(effect ? effectImports(folder, { test }) : []),
   ];
   const uiCode = react && !test && ["ui", "features", "app"].includes(folder);
   const syntax = [
     ...dynamicImports(imports),
     ...sleeps,
-    ...(wrapsRuntime ? [] : rawSyntax),
+    ...(wrapsRuntime ? [] : runtimeSyntax(effect)),
     ...(uiCode ? [...effects, ...timerWorkarounds, ...tokens] : []),
+    ...(effect ? effectSyntax(folder, { test, role }) : []),
   ];
   return {
-    files: test
-      ? [`src/${folder}/**/*.test.ts`, `src/${folder}/**/*.test.tsx`]
-      : [`src/${folder}/**`],
+    files:
+      role?.files ??
+      (test ? [`src/${folder}/**/*.test.ts`, `src/${folder}/**/*.test.tsx`] : [`src/${folder}/**`]),
     rules: {
       "no-restricted-imports": ["error", { patterns: imports }],
       "eslint-js/no-restricted-syntax": ["error", ...syntax],
@@ -203,9 +213,17 @@ const folderOverride = (folder, { react, test }) => {
   };
 };
 
-const outsideLayers = [noParentPaths, noDeepImports, noTesting, ...rawModules];
+const runtimeSyntax = (effect) => (effect ? [...effectRawSyntax, bunApis] : rawSyntax);
 
-const preset = ({ react }) => ({
+const outsideLayers = (effect) => [
+  noParentPaths,
+  noDeepImports,
+  noTesting,
+  ...rawModules,
+  ...(effect ? effectImports(undefined, { test: false }) : []),
+];
+
+const preset = ({ react, effect }) => ({
   $schema: "../node_modules/oxlint/configuration_schema.json",
   plugins: ["typescript", "import", "unicorn", "oxc", ...(react ? ["react", "jsx-a11y"] : [])],
   jsPlugins: [
@@ -237,13 +255,15 @@ const preset = ({ react }) => ({
         message: `Read settings from src/config/env.ts, which parses the environment once at boot ${doc("config")}.`,
       },
     ],
-    "no-restricted-imports": ["error", { patterns: outsideLayers }],
+    "no-restricted-imports": ["error", { patterns: outsideLayers(effect) }],
     "eslint-js/no-restricted-syntax": [
       "error",
-      ...dynamicImports(outsideLayers),
+      ...dynamicImports(outsideLayers(effect)),
       ...sleeps,
-      ...rawSyntax,
+      ...runtimeSyntax(effect),
+      ...(effect ? effectSyntax(undefined, { test: false }) : []),
     ],
+    ...(effect ? effectRuleSettings : {}),
     ...(react
       ? {
           "react/react-in-jsx-scope": "off",
@@ -253,8 +273,11 @@ const preset = ({ react }) => ({
       : {}),
   },
   overrides: [
-    ...LAYERS.map((folder) => folderOverride(folder, { react, test: false })),
-    ...LAYERS.map((folder) => folderOverride(folder, { react, test: true })),
+    ...LAYERS.map((folder) => folderOverride(folder, { react, effect, test: false })),
+    ...LAYERS.map((folder) => folderOverride(folder, { react, effect, test: true })),
+    ...(effect
+      ? effectRoles.map((role) => folderOverride(role.folder, { react, effect, test: false, role }))
+      : []),
     { files: ["src/config/**"], rules: { "eslint-js/no-restricted-properties": "off" } },
     { files: ["src/platform/**"], rules: { "no-console": "off" } },
     { files: ["src/ui/tokens/**"], rules: { "eslint-js/no-restricted-syntax": "off" } },
@@ -280,12 +303,13 @@ const preset = ({ react }) => ({
   ],
 });
 
-for (const [name, react] of [
-  ["base", false],
-  ["react", true],
+for (const [name, options] of [
+  ["base", { react: false, effect: false }],
+  ["react", { react: true, effect: false }],
+  ["effect", { react: false, effect: true }],
 ]) {
   writeFileSync(
     new URL(`../oxlint/${name}.json`, import.meta.url),
-    `${JSON.stringify(preset({ react }), null, 2)}\n`,
+    `${JSON.stringify(preset(options), null, 2)}\n`,
   );
 }
