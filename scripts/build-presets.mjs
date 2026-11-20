@@ -40,6 +40,11 @@ const rawModules = [
     message: `Raw runtime modules live behind @/platform. Use or extend a wrapper there ${doc("platform")}.`,
   },
   {
+    regex: "^(bun|bun:(sqlite|ffi|jsc))$",
+    caseSensitive: true,
+    message: `Bun's runtime modules live behind @/platform. Use or extend a wrapper there ${doc("platform")}.`,
+  },
+  {
     regex: "^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(/|$)",
     caseSensitive: true,
     message: `Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there ${doc("platform")}.`,
@@ -79,6 +84,10 @@ const sleeps = [
     selector: "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
     message: sleepMessage,
   },
+  {
+    selector: "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
+    message: sleepMessage,
+  },
 ];
 const platformMessage = (what, wrapper) =>
   `${what} goes through @/platform/${wrapper}, so it can be faked in tests and changed in one place ${doc("platform")}.`;
@@ -106,6 +115,10 @@ const rawSyntax = [
   {
     selector: "MemberExpression[object.name='console']",
     message: platformMessage("Logging", "log"),
+  },
+  {
+    selector: "MemberExpression[object.name='Bun'][property.name!=/^sleep(Sync)?$/]",
+    message: `Bun's runtime APIs (Bun.serve, Bun.file, Bun.spawn, Bun.env...) live behind @/platform. Use or extend a wrapper there ${doc("platform")}.`,
   },
 ];
 const timerWorkarounds = [

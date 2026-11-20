@@ -1,6 +1,6 @@
 {
   "name": "@interest-protocol/standards",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Interest Protocol's house standard: Oxlint and oxfmt configs, tsconfig base and lint plugin.",
   "license": "MIT",
   "bin": {
@@ -22,10 +22,10 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "test": "node --test test/*.test.mjs",
+    "test": "bun test test/",
     "lint": "oxlint --deny-warnings plugin scripts bin test/rules.test.mjs test/verify.test.mjs",
-    "build:presets": "node scripts/build-presets.mjs",
-    "check:presets": "node scripts/build-presets.mjs && git diff --exit-code oxlint/",
+    "build:presets": "bun scripts/build-presets.mjs",
+    "check:presets": "bun scripts/build-presets.mjs && git diff --exit-code oxlint/",
     "format": "oxfmt --check ."
   },
   "devDependencies": {
@@ -42,6 +42,7 @@
     "oxlint-plugin-eslint": "^1.94.0"
   },
   "engines": {
-    "node": ">=24"
-  }
+    "bun": ">=1.4"
+  },
+  "packageManager": "bun@1.4.4"
 }

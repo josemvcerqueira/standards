@@ -2,7 +2,7 @@
 
 How new code is written at Interest Protocol, by people and by agents. Every rule here names what enforces it. A rule that nothing enforces is either made enforceable or deleted.
 
-Install: `npm i -D @interest-protocol/standards oxlint oxfmt oxlint-plugin-eslint eslint-plugin-sonarjs`, then start new repos from a template repo (`template-service`).
+Install: `bun add -d @interest-protocol/standards oxlint oxfmt oxlint-plugin-eslint eslint-plugin-sonarjs`, then start new repos from a template repo (`template-service`).
 
 ## Stack
 
@@ -15,8 +15,8 @@ Install: `npm i -D @interest-protocol/standards oxlint oxfmt oxlint-plugin-eslin
 | Branching and collections | ts-pattern, Remeda                                                                                                |
 | SQL                       | Drizzle + `pg`                                                                                                    |
 | Backend effects (pilot)   | Effect, in new backend services only, one pinned major                                                            |
-| Tests                     | vitest (`jest-expo` for Expo apps)                                                                                |
-| Runtime, packages         | Node 24, npm                                                                                                      |
+| Tests                     | `bun test` (`jest-expo` for Expo apps)                                                                            |
+| Runtime, packages         | Bun: runtime, package manager (`bun.lock`), script and test runner. No npm, pnpm or yarn                          |
 
 ## Folders
 
@@ -44,23 +44,25 @@ app       entry points: routes, HTTP handlers, CLI, workers
 
 Our lightweight version of the talk's Dune: product code never touches raw runtime APIs. `src/platform/` wraps them, and everything above it calls the wrappers, so tests can fake them and a change (timeouts, logging format, a driver swap) happens in one file.
 
-| Raw API                                                                 | Use instead                                                     |
-| ----------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `fetch`, `axios`, `undici`, `got`, `ky`                                 | `@/platform/http` (`fetchJson` with a zod schema and a timeout) |
-| `Date.now()`, `new Date()`                                              | `@/platform/clock`                                              |
-| `setTimeout`, `setInterval`, `setImmediate`                             | a wrapper in `@/platform` that names the job                    |
-| `console.*`                                                             | `@/platform/log`                                                |
-| `Math.random()`                                                         | `@/platform/random`                                             |
-| `node:fs`, `node:http`, `node:child_process`, `pg`, `redis` and similar | a wrapper in `@/platform`                                       |
+| Raw API                                                                  | Use instead                                                      |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `fetch`, `axios`, `undici`, `got`, `ky`                                  | `@/platform/http` (`fetchJson` with a zod schema and a timeout)  |
+| `Date.now()`, `new Date()`                                               | `@/platform/clock`                                               |
+| `setTimeout`, `setInterval`, `setImmediate`                              | a wrapper in `@/platform` that names the job                     |
+| `console.*`                                                              | `@/platform/log`                                                 |
+| `Math.random()`                                                          | `@/platform/random`                                              |
+| `Bun.serve`, `Bun.file`, `Bun.spawn`, `Bun.env`, `bun:sqlite`, `bun:ffi` | a wrapper in `@/platform`                                        |
+| `Bun.sleep`                                                              | not allowed anywhere: wait for the event or poll with a deadline |
+| `node:fs`, `node:http`, `node:child_process`, `pg`, `redis` and similar  | a wrapper in `@/platform`                                        |
 
 `@/platform` imports nothing from the app above it, and `@/lib` never imports `@/platform`. Tests may use raw APIs. The wrappers live in each repo (they start from the template), and the bans live in this package. Enforced by: `no-restricted-imports` and `no-restricted-syntax` in every folder except `src/platform/`.
 
 ## Monorepo
 
-Monorepos use npm workspaces and Turborepo: `apps/*` are deployables (service, Next.js, Expo), `packages/*` are shared code. Each workspace has the standard `src/` folders and its own `.oxlintrc.json` (base or react preset) and `tsconfig.json`; oxfmt, hooks, CI and this package are installed once at the root.
+Monorepos use Bun workspaces and Turborepo: `apps/*` are deployables (service, Next.js, Expo), `packages/*` are shared code. Each workspace has the standard `src/` folders and its own `.oxlintrc.json` (base or react preset) and `tsconfig.json`; oxfmt, hooks, CI and this package are installed once at the root.
 
 - Apps import packages. A package never depends on an app. Enforced by: `ip-standards-verify` reading each workspace's `package.json`.
-- Every package declares `exports`, its public entry. Nothing imports another package's `src/`, `dist/`, `lib/` or `internal/`. Enforced by: `exports` (TypeScript and Node refuse other paths), `ip-standards-verify`, and `no-restricted-imports`.
+- Every package declares `exports`, its public entry. Nothing imports another package's `src/`, `dist/`, `lib/` or `internal/`. Enforced by: `exports` (TypeScript and Bun refuse other paths), `ip-standards-verify`, and `no-restricted-imports`.
 - No `../` across workspaces. Enforced by: `no-restricted-imports`.
 - The gate runs from the root on affected workspaces only (`turbo run … --affected`); `ip-standards-verify` checks every workspace.
 
@@ -130,6 +132,7 @@ The gate (`scripts/gate.sh`) runs, in order: `ip-standards-verify`, `oxfmt --che
 - doesn't extend a preset from this package, sets any rule to `off` or `warn`, or adds ignore patterns
 - doesn't extend `tsconfig.base.json`, or turns off any strict option from it
 - has an `.oxfmtrc.json` that differs from `oxfmt.json`
+- doesn't set `"packageManager": "bun@…"`, or has a `package-lock.json`, `pnpm-lock.yaml` or `yarn.lock`
 - disables an architecture or type-safety rule in source (`no-restricted-*`, `house/*`, `no-explicit-any`, `no-non-null-assertion`, `import/no-cycle`), uses a file-wide disable, or uses `@ts-ignore` / `@ts-nocheck`
 
 Repos may add rules. They may never weaken them. A rule that is wrong gets changed here, in one place, for everyone.
@@ -138,4 +141,4 @@ Repos may add rules. They may never weaken them. A rule that is wrong gets chang
 
 ## Changing the standard
 
-Edit `scripts/build-presets.mjs`, run `npm run build:presets`, add a fixture and a test line, then release a new version. Repos pick it up by bumping the package.
+Edit `scripts/build-presets.mjs`, run `bun run build:presets`, add a fixture and a test line, then release a new version. Repos pick it up by bumping the package.

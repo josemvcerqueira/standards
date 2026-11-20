@@ -87,6 +87,11 @@
             "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           },
           {
+            "regex": "^(bun|bun:(sqlite|ffi|jsc))$",
+            "caseSensitive": true,
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
             "regex": "^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(/|$)",
             "caseSensitive": true,
             "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
@@ -129,6 +134,14 @@
         "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
       },
       {
+        "selector": "ImportExpression[source.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+        "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+      },
+      {
+        "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+        "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+      },
+      {
         "selector": "ImportExpression[source.value=/^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(\\/|$)/]",
         "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
       },
@@ -146,6 +159,10 @@
       },
       {
         "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+        "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+      },
+      {
+        "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
         "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
       },
       {
@@ -171,6 +188,10 @@
       {
         "selector": "MemberExpression[object.name='console']",
         "message": "Logging goes through @/platform/log, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+      },
+      {
+        "selector": "MemberExpression[object.name='Bun'][property.name!=/^sleep(Sync)?$/]",
+        "message": "Bun's runtime APIs (Bun.serve, Bun.file, Bun.spawn, Bun.env...) live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
       }
     ],
     "react/react-in-jsx-scope": "off",
@@ -226,6 +247,11 @@
                 "regex": "^(node:)?(fs|fs/promises|child_process|http|https|http2|net|dgram|worker_threads)$",
                 "caseSensitive": true,
                 "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+              },
+              {
+                "regex": "^(bun|bun:(sqlite|ffi|jsc))$",
+                "caseSensitive": true,
+                "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
               },
               {
                 "regex": "^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(/|$)",
@@ -302,6 +328,14 @@
             "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           },
           {
+            "selector": "ImportExpression[source.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
             "selector": "ImportExpression[source.value=/^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(\\/|$)/]",
             "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
           },
@@ -319,6 +353,10 @@
           },
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           },
           {
@@ -344,6 +382,10 @@
           {
             "selector": "MemberExpression[object.name='console']",
             "message": "Logging goes through @/platform/log, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+          },
+          {
+            "selector": "MemberExpression[object.name='Bun'][property.name!=/^sleep(Sync)?$/]",
+            "message": "Bun's runtime APIs (Bun.serve, Bun.file, Bun.spawn, Bun.env...) live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           }
         ]
       }
@@ -425,6 +467,10 @@
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           }
         ]
       }
@@ -474,6 +520,11 @@
                 "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
               },
               {
+                "regex": "^(bun|bun:(sqlite|ffi|jsc))$",
+                "caseSensitive": true,
+                "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+              },
+              {
                 "regex": "^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(/|$)",
                 "caseSensitive": true,
                 "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
@@ -540,6 +591,14 @@
             "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           },
           {
+            "selector": "ImportExpression[source.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
             "selector": "ImportExpression[source.value=/^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(\\/|$)/]",
             "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
           },
@@ -557,6 +616,10 @@
           },
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           },
           {
@@ -582,6 +645,10 @@
           {
             "selector": "MemberExpression[object.name='console']",
             "message": "Logging goes through @/platform/log, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+          },
+          {
+            "selector": "MemberExpression[object.name='Bun'][property.name!=/^sleep(Sync)?$/]",
+            "message": "Bun's runtime APIs (Bun.serve, Bun.file, Bun.spawn, Bun.env...) live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           }
         ]
       }
@@ -631,6 +698,11 @@
                 "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
               },
               {
+                "regex": "^(bun|bun:(sqlite|ffi|jsc))$",
+                "caseSensitive": true,
+                "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+              },
+              {
                 "regex": "^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(/|$)",
                 "caseSensitive": true,
                 "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
@@ -697,6 +769,14 @@
             "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           },
           {
+            "selector": "ImportExpression[source.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
             "selector": "ImportExpression[source.value=/^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(\\/|$)/]",
             "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
           },
@@ -714,6 +794,10 @@
           },
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           },
           {
@@ -739,6 +823,10 @@
           {
             "selector": "MemberExpression[object.name='console']",
             "message": "Logging goes through @/platform/log, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+          },
+          {
+            "selector": "MemberExpression[object.name='Bun'][property.name!=/^sleep(Sync)?$/]",
+            "message": "Bun's runtime APIs (Bun.serve, Bun.file, Bun.spawn, Bun.env...) live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           }
         ]
       }
@@ -783,6 +871,11 @@
                 "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
               },
               {
+                "regex": "^(bun|bun:(sqlite|ffi|jsc))$",
+                "caseSensitive": true,
+                "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+              },
+              {
                 "regex": "^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(/|$)",
                 "caseSensitive": true,
                 "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
@@ -841,6 +934,14 @@
             "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           },
           {
+            "selector": "ImportExpression[source.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
             "selector": "ImportExpression[source.value=/^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(\\/|$)/]",
             "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
           },
@@ -858,6 +959,10 @@
           },
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           },
           {
@@ -883,6 +988,10 @@
           {
             "selector": "MemberExpression[object.name='console']",
             "message": "Logging goes through @/platform/log, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+          },
+          {
+            "selector": "MemberExpression[object.name='Bun'][property.name!=/^sleep(Sync)?$/]",
+            "message": "Bun's runtime APIs (Bun.serve, Bun.file, Bun.spawn, Bun.env...) live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           }
         ]
       }
@@ -927,6 +1036,11 @@
                 "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
               },
               {
+                "regex": "^(bun|bun:(sqlite|ffi|jsc))$",
+                "caseSensitive": true,
+                "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+              },
+              {
                 "regex": "^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(/|$)",
                 "caseSensitive": true,
                 "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
@@ -985,6 +1099,14 @@
             "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           },
           {
+            "selector": "ImportExpression[source.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
             "selector": "ImportExpression[source.value=/^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(\\/|$)/]",
             "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
           },
@@ -1002,6 +1124,10 @@
           },
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           },
           {
@@ -1027,6 +1153,10 @@
           {
             "selector": "MemberExpression[object.name='console']",
             "message": "Logging goes through @/platform/log, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+          },
+          {
+            "selector": "MemberExpression[object.name='Bun'][property.name!=/^sleep(Sync)?$/]",
+            "message": "Bun's runtime APIs (Bun.serve, Bun.file, Bun.spawn, Bun.env...) live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           }
         ]
       }
@@ -1071,6 +1201,11 @@
                 "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
               },
               {
+                "regex": "^(bun|bun:(sqlite|ffi|jsc))$",
+                "caseSensitive": true,
+                "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+              },
+              {
                 "regex": "^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(/|$)",
                 "caseSensitive": true,
                 "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
@@ -1129,6 +1264,14 @@
             "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           },
           {
+            "selector": "ImportExpression[source.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
             "selector": "ImportExpression[source.value=/^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(\\/|$)/]",
             "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
           },
@@ -1146,6 +1289,10 @@
           },
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           },
           {
@@ -1171,6 +1318,10 @@
           {
             "selector": "MemberExpression[object.name='console']",
             "message": "Logging goes through @/platform/log, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+          },
+          {
+            "selector": "MemberExpression[object.name='Bun'][property.name!=/^sleep(Sync)?$/]",
+            "message": "Bun's runtime APIs (Bun.serve, Bun.file, Bun.spawn, Bun.env...) live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           },
           {
             "selector": "ImportSpecifier[imported.name=/^use(Layout|Insertion)?Effect$/]",
@@ -1243,6 +1394,11 @@
                 "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
               },
               {
+                "regex": "^(bun|bun:(sqlite|ffi|jsc))$",
+                "caseSensitive": true,
+                "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+              },
+              {
                 "regex": "^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(/|$)",
                 "caseSensitive": true,
                 "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
@@ -1301,6 +1457,14 @@
             "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           },
           {
+            "selector": "ImportExpression[source.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
             "selector": "ImportExpression[source.value=/^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(\\/|$)/]",
             "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
           },
@@ -1318,6 +1482,10 @@
           },
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           },
           {
@@ -1343,6 +1511,10 @@
           {
             "selector": "MemberExpression[object.name='console']",
             "message": "Logging goes through @/platform/log, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+          },
+          {
+            "selector": "MemberExpression[object.name='Bun'][property.name!=/^sleep(Sync)?$/]",
+            "message": "Bun's runtime APIs (Bun.serve, Bun.file, Bun.spawn, Bun.env...) live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           },
           {
             "selector": "ImportSpecifier[imported.name=/^use(Layout|Insertion)?Effect$/]",
@@ -1410,6 +1582,11 @@
                 "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
               },
               {
+                "regex": "^(bun|bun:(sqlite|ffi|jsc))$",
+                "caseSensitive": true,
+                "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+              },
+              {
                 "regex": "^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(/|$)",
                 "caseSensitive": true,
                 "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
@@ -1460,6 +1637,14 @@
             "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           },
           {
+            "selector": "ImportExpression[source.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(bun|bun:(sqlite|ffi|jsc))$/]",
+            "message": "Bun's runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
             "selector": "ImportExpression[source.value=/^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(\\/|$)/]",
             "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
           },
@@ -1477,6 +1662,10 @@
           },
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           },
           {
@@ -1502,6 +1691,10 @@
           {
             "selector": "MemberExpression[object.name='console']",
             "message": "Logging goes through @/platform/log, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+          },
+          {
+            "selector": "MemberExpression[object.name='Bun'][property.name!=/^sleep(Sync)?$/]",
+            "message": "Bun's runtime APIs (Bun.serve, Bun.file, Bun.spawn, Bun.env...) live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
           },
           {
             "selector": "ImportSpecifier[imported.name=/^use(Layout|Insertion)?Effect$/]",
@@ -1638,6 +1831,10 @@
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           }
         ]
       }
@@ -1706,6 +1903,10 @@
           },
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           }
         ]
@@ -1802,6 +2003,10 @@
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           }
         ]
       }
@@ -1897,6 +2102,10 @@
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           }
         ]
       }
@@ -1978,6 +2187,10 @@
           },
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           }
         ]
@@ -2061,6 +2274,10 @@
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           }
         ]
       }
@@ -2142,6 +2359,10 @@
           },
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           }
         ]
@@ -2225,6 +2446,10 @@
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           }
         ]
       }
@@ -2294,6 +2519,10 @@
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           }
         ]
       }
@@ -2345,6 +2574,10 @@
           },
           {
             "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "CallExpression[callee.object.name='Bun'][callee.property.name=/^sleep(Sync)?$/]",
             "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
           }
         ]

@@ -14,6 +14,7 @@ const repo = (change) => {
     cpSync(join(template, file), join(dir, file));
   }
   mkdirSync(join(dir, "src"));
+  writeFileSync(join(dir, "package.json"), '{"name":"svc","packageManager":"bun@1.4.4"}');
   writeFileSync(join(dir, "src/ok.ts"), "export const ok = 1;\n");
   change?.(dir);
   return spawnSync(process.execPath, [verify], { cwd: dir, encoding: "utf8" });
@@ -72,6 +73,17 @@ const failures = [
     (dir) => writeFileSync(join(dir, "src/x.ts"), "// @ts-ignore\nexport const x: number = 'a';\n"),
     "@ts-ignore",
   ],
+  [
+    "npm as the package manager",
+    (dir) =>
+      writeFileSync(join(dir, "package.json"), '{"name":"svc","packageManager":"npm@11.6.2"}'),
+    "packageManager",
+  ],
+  [
+    "an npm lockfile",
+    (dir) => writeFileSync(join(dir, "package-lock.json"), "{}"),
+    "only bun.lock",
+  ],
 ];
 
 for (const [name, change, message] of failures) {
@@ -85,7 +97,10 @@ for (const [name, change, message] of failures) {
 const monorepo = (change) => {
   const dir = mkdtempSync(join(tmpdir(), "verify-mono-"));
   cpSync(join(template, ".oxfmtrc.json"), join(dir, ".oxfmtrc.json"));
-  writeFileSync(join(dir, "package.json"), '{"name":"root","workspaces":["apps/*","packages/*"]}');
+  writeFileSync(
+    join(dir, "package.json"),
+    '{"name":"root","packageManager":"bun@1.4.4","workspaces":["apps/*","packages/*"]}',
+  );
   const workspace = (path, manifest) => {
     mkdirSync(join(dir, path, "src"), { recursive: true });
     for (const file of [".oxlintrc.json", "tsconfig.json"]) {
