@@ -180,6 +180,8 @@ Pipelines use the `.pipe()` method or `Effect.gen`; both are functions under the
 | No `HttpRouter`, `HttpServer`, `HttpServerRequest` or `HttpServerResponse` below `src/app`                         | declare an endpoint and implement it with `HttpApiBuilder.group` | "`HttpApi` gives you schema-first, type-safe HTTP APIs with runtime validation, typed clients, and OpenAPI docs from one definition" (AGENTS.md in effect 4.1.4)                                                              |
 | No `Schema.Any` or `Schema.Unknown` as an endpoint's `success`, `payload`, `params`, `query`, `headers` or `error` | the real schema                                                  | same                                                                                                                                                                                                                          |
 
+API docs are `HttpApiScalar.layerCdn(Api, { path: "/docs", version: "x.y.z" })`, mounted only when `DOCS_ENABLED` is true (default false; on in dev and staging). `HttpApiScalar.layer` embeds the 3.2 MB Scalar app in the server (Bun-bundled, the starter grows from 339 kB to 3.6 MB), `HttpApiSwagger.layer` embeds 2 MB, and `layerCdn` without `version` loads `@scalar/api-reference@latest` from jsDelivr. All three fail lint. The pinned version is the one `effect` embeds (1.43.5 in effect 4.1.4); bump it with Effect. `/openapi.json` is always served.
+
 Test handlers with `HttpApiTest.groups(Api, ["group"])`, which runs the real encoding, routing and decoding without a server (`ai-docs/src/51_http-server/20_testing.ts`).
 
 ### Effect config

@@ -42,6 +42,10 @@ const overlapping = [
 const imports = {
   everywhere: [
     pattern(
+      "^effect/http-api/HttpApiSwagger$",
+      `HttpApiSwagger embeds a 2 MB Swagger UI in the server. Serve docs with HttpApiScalar.layerCdn(Api, { path: "/docs", version: "x.y.z" }), mounted only when docs are enabled ${doc("effect-http-api")}.`,
+    ),
+    pattern(
       "^(effect(/[a-z][a-z-]*)?|@effect/[a-z][a-z-]*)$",
       `Import each Effect module from its own path: import * as Effect from "effect/Effect", import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder". Barrels like "effect" or "effect/http" pull in every module for bundlers without deep scope analysis ${doc("effect-imports")}.`,
     ),
@@ -111,6 +115,14 @@ const v3Renames = [
 
 const syntax = {
   everywhere: [
+    rule(
+      "MemberExpression[object.name='HttpApiScalar'][property.name='layer']",
+      `HttpApiScalar.layer embeds the 3.2 MB Scalar app in the server. Use HttpApiScalar.layerCdn(Api, { path: "/docs", version: "x.y.z" }), mounted only when docs are enabled ${doc("effect-http-api")}.`,
+    ),
+    rule(
+      "CallExpression[callee.object.name='HttpApiScalar'][callee.property.name='layerCdn']:not(:has(Property[key.name='version'][value.value=/^\\d+\\.\\d+\\.\\d+$/]))",
+      `Pin the Scalar version: HttpApiScalar.layerCdn(Api, { path: "/docs", version: "1.43.5" }). Without it the page loads @scalar/api-reference@latest from jsDelivr ${doc("effect-http-api")}.`,
+    ),
     rule(
       "ImportDeclaration[source.value=/^(effect|@effect\\/[a-z-]+)\\/([a-z-]+\\/)*[A-Z]/] > ImportSpecifier",
       `Import the module as a namespace: import * as Effect from "effect/Effect" (or import type * as ...). One import style, and every call reads Module.fn ${doc("effect-imports")}.`,
