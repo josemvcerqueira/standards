@@ -60,8 +60,80 @@
         "message": "Read settings from src/config/env.ts, which parses the environment once at boot (STANDARD.md#config)."
       }
     ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "regex": "(^|/)\\.\\.(/|$)",
+            "caseSensitive": true,
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+          },
+          {
+            "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+            "caseSensitive": true,
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "regex": "^(@/|#)(testing)(/|$)",
+            "caseSensitive": true,
+            "message": "Production code never imports test helpers (STANDARD.md#tests)."
+          },
+          {
+            "regex": "^(node:)?(fs|fs/promises|child_process|http|https|http2|net|dgram|worker_threads)$",
+            "caseSensitive": true,
+            "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+          },
+          {
+            "regex": "^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(/|$)",
+            "caseSensitive": true,
+            "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
+          }
+        ]
+      }
+    ],
     "eslint-js/no-restricted-syntax": [
       "error",
+      {
+        "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
+        "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+      },
+      {
+        "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
+        "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+      },
+      {
+        "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+        "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+      },
+      {
+        "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+        "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+      },
+      {
+        "selector": "ImportExpression[source.value=/^(@\\/|#)(testing)(\\/|$)/]",
+        "message": "Production code never imports test helpers (STANDARD.md#tests)."
+      },
+      {
+        "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(testing)(\\/|$)/]",
+        "message": "Production code never imports test helpers (STANDARD.md#tests)."
+      },
+      {
+        "selector": "ImportExpression[source.value=/^(node:)?(fs|fs\\/promises|child_process|http|https|http2|net|dgram|worker_threads)$/]",
+        "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+      },
+      {
+        "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(node:)?(fs|fs\\/promises|child_process|http|https|http2|net|dgram|worker_threads)$/]",
+        "message": "Raw runtime modules live behind @/platform. Use or extend a wrapper there (STANDARD.md#platform)."
+      },
+      {
+        "selector": "ImportExpression[source.value=/^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(\\/|$)/]",
+        "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
+      },
+      {
+        "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(pg|postgres|redis|ioredis|undici|axios|node-fetch|ky|got)(\\/|$)/]",
+        "message": "Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there (STANDARD.md#platform)."
+      },
       {
         "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
         "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
@@ -73,6 +145,30 @@
       {
         "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
         "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+      },
+      {
+        "selector": "CallExpression[callee.name='fetch']",
+        "message": "Network access goes through @/platform/http, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+      },
+      {
+        "selector": "CallExpression[callee.name=/^(setTimeout|setInterval|setImmediate)$/]",
+        "message": "Scheduling goes through @/platform/schedule, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+      },
+      {
+        "selector": "CallExpression[callee.object.name='Date'][callee.property.name='now']",
+        "message": "Reading the time goes through @/platform/clock, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+      },
+      {
+        "selector": "NewExpression[callee.name='Date'][arguments.length=0]",
+        "message": "Reading the time goes through @/platform/clock, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+      },
+      {
+        "selector": "CallExpression[callee.object.name='Math'][callee.property.name='random']",
+        "message": "Randomness goes through @/platform/random, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
+      },
+      {
+        "selector": "MemberExpression[object.name='console']",
+        "message": "Logging goes through @/platform/log, so it can be faked in tests and changed in one place (STANDARD.md#platform)."
       }
     ]
   },
@@ -87,32 +183,37 @@
           {
             "patterns": [
               {
-                "regex": "^@/(platform)(/|$)",
+                "regex": "^(@/|#)(platform)(/|$)",
                 "caseSensitive": true,
                 "message": "@/lib is pure: it never touches the runtime. Move this to @/platform (STANDARD.md#platform)."
               },
               {
-                "regex": "^@/(auth|hooks|ui)(/|$)",
+                "regex": "^(@/|#)(auth|hooks|ui)(/|$)",
                 "caseSensitive": true,
                 "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(features)(/|$)",
+                "regex": "^(@/|#)(features)(/|$)",
                 "caseSensitive": true,
                 "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(testing)(/|$)",
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
+                "regex": "^(@/|#)(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
               },
@@ -132,51 +233,59 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(platform)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(platform)(\\/|$)/]",
             "message": "@/lib is pure: it never touches the runtime. Move this to @/platform (STANDARD.md#platform)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(platform)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(platform)(\\/|$)/]",
             "message": "@/lib is pure: it never touches the runtime. Move this to @/platform (STANDARD.md#platform)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(auth|hooks|ui)(\\/|$)/]",
             "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(auth|hooks|ui)(\\/|$)/]",
             "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
@@ -244,17 +353,22 @@
           {
             "patterns": [
               {
-                "regex": "^@/(config|data|auth|hooks|ui|features|app)(/|$)",
+                "regex": "^(@/|#)(config|data|auth|hooks|ui|features|app)(/|$)",
                 "caseSensitive": true,
                 "message": "@/platform wraps the runtime and knows nothing of the app above it (STANDARD.md#platform)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(testing)(/|$)",
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
+                "regex": "^(@/|#)(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
               }
@@ -264,27 +378,35 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(config|data|auth|hooks|ui|features|app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(config|data|auth|hooks|ui|features|app)(\\/|$)/]",
             "message": "@/platform wraps the runtime and knows nothing of the app above it (STANDARD.md#platform)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(config|data|auth|hooks|ui|features|app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(config|data|auth|hooks|ui|features|app)(\\/|$)/]",
             "message": "@/platform wraps the runtime and knows nothing of the app above it (STANDARD.md#platform)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
@@ -312,27 +434,32 @@
           {
             "patterns": [
               {
-                "regex": "^@/(auth|hooks|ui)(/|$)",
+                "regex": "^(@/|#)(auth|hooks|ui)(/|$)",
                 "caseSensitive": true,
                 "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(features)(/|$)",
+                "regex": "^(@/|#)(features)(/|$)",
                 "caseSensitive": true,
                 "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(testing)(/|$)",
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
+                "regex": "^(@/|#)(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
               },
@@ -352,43 +479,51 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(auth|hooks|ui)(\\/|$)/]",
             "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(auth|hooks|ui)(\\/|$)/]",
             "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
@@ -456,27 +591,32 @@
           {
             "patterns": [
               {
-                "regex": "^@/(auth|hooks|ui)(/|$)",
+                "regex": "^(@/|#)(auth|hooks|ui)(/|$)",
                 "caseSensitive": true,
                 "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(features)(/|$)",
+                "regex": "^(@/|#)(features)(/|$)",
                 "caseSensitive": true,
                 "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(testing)(/|$)",
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
+                "regex": "^(@/|#)(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
               },
@@ -496,43 +636,51 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(auth|hooks|ui)(\\/|$)/]",
             "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(auth|hooks|ui)(\\/|$)/]",
             "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
@@ -600,22 +748,27 @@
           {
             "patterns": [
               {
-                "regex": "^@/(features)(/|$)",
+                "regex": "^(@/|#)(features)(/|$)",
                 "caseSensitive": true,
                 "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(testing)(/|$)",
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
+                "regex": "^(@/|#)(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
               },
@@ -635,35 +788,43 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
@@ -731,22 +892,27 @@
           {
             "patterns": [
               {
-                "regex": "^@/(features)(/|$)",
+                "regex": "^(@/|#)(features)(/|$)",
                 "caseSensitive": true,
                 "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(testing)(/|$)",
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
+                "regex": "^(@/|#)(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
               },
@@ -766,35 +932,43 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
@@ -862,22 +1036,27 @@
           {
             "patterns": [
               {
-                "regex": "^@/(features)(/|$)",
+                "regex": "^(@/|#)(features)(/|$)",
                 "caseSensitive": true,
                 "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(testing)(/|$)",
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
+                "regex": "^(@/|#)(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
               },
@@ -897,35 +1076,43 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
@@ -993,22 +1180,27 @@
           {
             "patterns": [
               {
-                "regex": "^@/(features)(/|$)",
+                "regex": "^(@/|#)(features)(/|$)",
                 "caseSensitive": true,
                 "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(testing)(/|$)",
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
+                "regex": "^(@/|#)(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
               },
@@ -1028,35 +1220,43 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
@@ -1124,17 +1324,22 @@
           {
             "patterns": [
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(testing)(/|$)",
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+              },
+              {
+                "regex": "^(@/|#)(testing)(/|$)",
                 "caseSensitive": true,
                 "message": "Production code never imports test helpers (STANDARD.md#tests)."
               },
@@ -1154,27 +1359,35 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(testing)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(testing)(\\/|$)/]",
             "message": "Production code never imports test helpers (STANDARD.md#tests)."
           },
           {
@@ -1243,29 +1456,34 @@
           {
             "patterns": [
               {
-                "regex": "^@/(platform)(/|$)",
+                "regex": "^(@/|#)(platform)(/|$)",
                 "caseSensitive": true,
                 "message": "@/lib is pure: it never touches the runtime. Move this to @/platform (STANDARD.md#platform)."
               },
               {
-                "regex": "^@/(auth|hooks|ui)(/|$)",
+                "regex": "^(@/|#)(auth|hooks|ui)(/|$)",
                 "caseSensitive": true,
                 "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(features)(/|$)",
+                "regex": "^(@/|#)(features)(/|$)",
                 "caseSensitive": true,
                 "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1273,44 +1491,52 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(platform)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(platform)(\\/|$)/]",
             "message": "@/lib is pure: it never touches the runtime. Move this to @/platform (STANDARD.md#platform)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(platform)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(platform)(\\/|$)/]",
             "message": "@/lib is pure: it never touches the runtime. Move this to @/platform (STANDARD.md#platform)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(auth|hooks|ui)(\\/|$)/]",
             "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(auth|hooks|ui)(\\/|$)/]",
             "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1338,14 +1564,19 @@
           {
             "patterns": [
               {
-                "regex": "^@/(config|data|auth|hooks|ui|features|app)(/|$)",
+                "regex": "^(@/|#)(config|data|auth|hooks|ui|features|app)(/|$)",
                 "caseSensitive": true,
                 "message": "@/platform wraps the runtime and knows nothing of the app above it (STANDARD.md#platform)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1353,20 +1584,28 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(config|data|auth|hooks|ui|features|app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(config|data|auth|hooks|ui|features|app)(\\/|$)/]",
             "message": "@/platform wraps the runtime and knows nothing of the app above it (STANDARD.md#platform)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(config|data|auth|hooks|ui|features|app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(config|data|auth|hooks|ui|features|app)(\\/|$)/]",
             "message": "@/platform wraps the runtime and knows nothing of the app above it (STANDARD.md#platform)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1394,24 +1633,29 @@
           {
             "patterns": [
               {
-                "regex": "^@/(auth|hooks|ui)(/|$)",
+                "regex": "^(@/|#)(auth|hooks|ui)(/|$)",
                 "caseSensitive": true,
                 "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(features)(/|$)",
+                "regex": "^(@/|#)(features)(/|$)",
                 "caseSensitive": true,
                 "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1419,36 +1663,44 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(auth|hooks|ui)(\\/|$)/]",
             "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(auth|hooks|ui)(\\/|$)/]",
             "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1476,24 +1728,29 @@
           {
             "patterns": [
               {
-                "regex": "^@/(auth|hooks|ui)(/|$)",
+                "regex": "^(@/|#)(auth|hooks|ui)(/|$)",
                 "caseSensitive": true,
                 "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(features)(/|$)",
+                "regex": "^(@/|#)(features)(/|$)",
                 "caseSensitive": true,
                 "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1501,36 +1758,44 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(auth|hooks|ui)(\\/|$)/]",
             "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(auth|hooks|ui)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(auth|hooks|ui)(\\/|$)/]",
             "message": "@/lib, @/data and @/config sit below @/auth, @/hooks and @/ui and never import them (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1558,19 +1823,24 @@
           {
             "patterns": [
               {
-                "regex": "^@/(features)(/|$)",
+                "regex": "^(@/|#)(features)(/|$)",
                 "caseSensitive": true,
                 "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1578,28 +1848,36 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1627,19 +1905,24 @@
           {
             "patterns": [
               {
-                "regex": "^@/(features)(/|$)",
+                "regex": "^(@/|#)(features)(/|$)",
                 "caseSensitive": true,
                 "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1647,28 +1930,36 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1696,19 +1987,24 @@
           {
             "patterns": [
               {
-                "regex": "^@/(features)(/|$)",
+                "regex": "^(@/|#)(features)(/|$)",
                 "caseSensitive": true,
                 "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1716,28 +2012,36 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1765,19 +2069,24 @@
           {
             "patterns": [
               {
-                "regex": "^@/(features)(/|$)",
+                "regex": "^(@/|#)(features)(/|$)",
                 "caseSensitive": true,
                 "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
               },
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1785,28 +2094,36 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(features)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(features)(\\/|$)/]",
             "message": "Only src/app imports a feature. Move shared code down to @/ui, @/hooks, @/data or @/lib (STANDARD.md#folders)."
           },
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1834,14 +2151,19 @@
           {
             "patterns": [
               {
-                "regex": "^@/(app)(/|$)",
+                "regex": "^(@/|#)(app)(/|$)",
                 "caseSensitive": true,
                 "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
               },
               {
                 "regex": "(^|/)\\.\\.(/|$)",
                 "caseSensitive": true,
-                "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+                "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+              },
+              {
+                "regex": "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+                "caseSensitive": true,
+                "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
               }
             ]
           }
@@ -1849,20 +2171,28 @@
         "eslint-js/no-restricted-syntax": [
           "error",
           {
-            "selector": "ImportExpression[source.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "ImportExpression[source.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
-            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@\\/(app)(\\/|$)/]",
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^(@\\/|#)(app)(\\/|$)/]",
             "message": "Nothing imports src/app: it is the entry layer (STANDARD.md#folders)."
           },
           {
             "selector": "ImportExpression[source.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
           },
           {
             "selector": "CallExpression[callee.name='require'][arguments.0.value=/(^|\\/)\\.\\.(\\/|$)/]",
-            "message": "Folders reach each other through @/, never ../ (STANDARD.md#folders)."
+            "message": "Folders reach each other through @/ (or #folder/ in a monorepo), never ../ (STANDARD.md#folders)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
+          },
+          {
+            "selector": "CallExpression[callee.name='require'][arguments.0.value=/^@[^\\/]+\\/[^\\/]+\\/(src|dist|lib|build|internal)(\\/|$)/]",
+            "message": "Import a workspace package through its public entry, never its internals. Export what you need from the package's index (STANDARD.md#monorepo)."
           },
           {
             "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
@@ -1901,6 +2231,34 @@
       ],
       "rules": {
         "eslint-js/no-restricted-syntax": "off"
+      }
+    },
+    {
+      "files": [
+        "scripts/**",
+        "bin/**",
+        "plugin/**",
+        "test/**",
+        "*.config.ts",
+        "*.config.mjs"
+      ],
+      "rules": {
+        "no-restricted-imports": "off",
+        "eslint-js/no-restricted-syntax": [
+          "error",
+          {
+            "selector": "NewExpression[callee.name='Promise'] CallExpression[callee.name='setTimeout']",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportDeclaration[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          },
+          {
+            "selector": "ImportExpression[source.value=/^(node:)?timers\\/promises$/]",
+            "message": "No fixed sleeps or timer workarounds: wait for the event, poll with a deadline, or use the framework's scheduler (STANDARD.md#timers)."
+          }
+        ]
       }
     },
     {

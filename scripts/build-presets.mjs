@@ -6,7 +6,7 @@ const doc = (section) => `(STANDARD.md#${section})`;
 const LAYERS = ["lib", "platform", "config", "data", "auth", "hooks", "ui", "features", "app"];
 
 const blocks = (folders, message) => ({
-  regex: `^@/(${folders.join("|")})(/|$)`,
+  regex: `^(@/|#)(${folders.join("|")})(/|$)`,
   caseSensitive: true,
   message,
 });
@@ -14,7 +14,7 @@ const blocks = (folders, message) => ({
 const noParentPaths = {
   regex: "(^|/)\\.\\.(/|$)",
   caseSensitive: true,
-  message: `Folders reach each other through @/, never ../ ${doc("folders")}.`,
+  message: `Folders reach each other through @/ (or #folder/ in a monorepo), never ../ ${doc("folders")}.`,
 };
 const noFeatures = blocks(
   ["features"],
@@ -45,6 +45,11 @@ const rawModules = [
     message: `Drivers and HTTP clients live behind @/platform. Use @/platform/http or a wrapper there ${doc("platform")}.`,
   },
 ];
+const noDeepImports = {
+  regex: "^@[^/]+/[^/]+/(src|dist|lib|build|internal)(/|$)",
+  caseSensitive: true,
+  message: `Import a workspace package through its public entry, never its internals. Export what you need from the package's index ${doc("monorepo")}.`,
+};
 const noTesting = blocks(
   ["testing"],
   `Production code never imports test helpers ${doc("tests")}.`,
@@ -163,6 +168,7 @@ const folderOverride = (folder, { react, test }) => {
   const wrapsRuntime = folder === "platform" || test;
   const imports = [
     ...folderImports[folder],
+    noDeepImports,
     ...(test ? [] : [noTesting]),
     ...(wrapsRuntime ? [] : rawModules),
   ];
@@ -183,6 +189,8 @@ const folderOverride = (folder, { react, test }) => {
     },
   };
 };
+
+const outsideLayers = [noParentPaths, noDeepImports, noTesting, ...rawModules];
 
 const preset = ({ react }) => ({
   $schema: "../node_modules/oxlint/configuration_schema.json",
@@ -216,7 +224,13 @@ const preset = ({ react }) => ({
         message: `Read settings from src/config/env.ts, which parses the environment once at boot ${doc("config")}.`,
       },
     ],
-    "eslint-js/no-restricted-syntax": ["error", ...sleeps],
+    "no-restricted-imports": ["error", { patterns: outsideLayers }],
+    "eslint-js/no-restricted-syntax": [
+      "error",
+      ...dynamicImports(outsideLayers),
+      ...sleeps,
+      ...rawSyntax,
+    ],
     ...(react
       ? {
           "react/react-in-jsx-scope": "off",
@@ -231,6 +245,13 @@ const preset = ({ react }) => ({
     { files: ["src/config/**"], rules: { "eslint-js/no-restricted-properties": "off" } },
     { files: ["src/platform/**"], rules: { "no-console": "off" } },
     { files: ["src/ui/tokens/**"], rules: { "eslint-js/no-restricted-syntax": "off" } },
+    {
+      files: ["scripts/**", "bin/**", "plugin/**", "test/**", "*.config.ts", "*.config.mjs"],
+      rules: {
+        "no-restricted-imports": "off",
+        "eslint-js/no-restricted-syntax": ["error", ...sleeps],
+      },
+    },
     {
       files: [
         ...TESTS,

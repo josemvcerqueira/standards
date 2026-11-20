@@ -80,7 +80,7 @@ const disableNeedsReason = {
 
 // oxlint-disable-next-line import/no-default-export -- Oxlint loads a JS plugin from its default export
 export default {
-  meta: { name: "house", version: "0.1.0" },
+  meta: { name: "house", version: "0.2.0" },
   rules: {
     "no-comments": noComments,
     "disable-needs-reason": disableNeedsReason,
