@@ -1,7 +1,7 @@
 {
   "name": "@interest-protocol/standards",
-  "version": "0.3.0",
-  "description": "Interest Protocol's house standard: Oxlint and oxfmt configs, tsconfig base and lint plugin.",
+  "version": "0.4.0",
+  "description": "Interest Protocol's house standard: Oxlint and oxfmt configs (base, React, Effect), tsconfig bases and lint plugin.",
   "license": "MIT",
   "bin": {
     "ip-standards-verify": "./bin/verify.mjs"
@@ -12,6 +12,7 @@
     "plugin",
     "oxfmt.json",
     "tsconfig.base.json",
+    "tsconfig.effect.json",
     "STANDARD.md"
   ],
   "type": "module",
@@ -19,11 +20,12 @@
     "./plugin": "./plugin/index.js",
     "./tsconfig.base.json": "./tsconfig.base.json",
     "./oxfmt.json": "./oxfmt.json",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./tsconfig.effect.json": "./tsconfig.effect.json"
   },
   "scripts": {
-    "test": "bun test test/",
-    "lint": "oxlint --deny-warnings plugin scripts bin test/rules.test.mjs test/verify.test.mjs",
+    "test": "bun test test/*.test.mjs",
+    "lint": "oxlint --deny-warnings plugin scripts bin test/rules.test.mjs test/verify.test.mjs test/effect.test.mjs",
     "build:presets": "bun scripts/build-presets.mjs",
     "check:presets": "bun scripts/build-presets.mjs && git diff --exit-code oxlint/",
     "format": "oxfmt --check ."

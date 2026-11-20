@@ -1,0 +1,58 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "namespaceImportPackages": ["effect", "@effect/*"],
+        "keyPatterns": [
+          { "target": "service", "pattern": "default", "skipLeadingPath": ["src/"] },
+          { "target": "error", "pattern": "package-identifier" }
+        ],
+        "ignoreEffectSuggestionsInTscExitCode": true,
+        "diagnosticSeverity": {
+          "anyUnknownInErrorContext": "error",
+          "floatingEffect": "error",
+          "missingEffectContext": "error",
+          "missingEffectError": "error",
+          "missingLayerContext": "error",
+          "missingReturnYieldStar": "error",
+          "missingStarInYieldEffectGen": "error",
+          "outdatedApi": "error",
+          "duplicatePackage": "error",
+          "classSelfMismatch": "error",
+          "overriddenSchemaConstructor": "error",
+          "effectInFailure": "error",
+          "effectInVoidSuccess": "error",
+          "globalErrorInEffectCatch": "error",
+          "globalErrorInEffectFailure": "error",
+          "unknownInEffectCatch": "error",
+          "layerMergeAllWithDependencies": "error",
+          "multipleEffectProvide": "error",
+          "lazyPromiseInEffectSync": "error",
+          "returnEffectInGen": "error",
+          "runEffectInsideEffect": "error",
+          "tryCatchInEffectGen": "error",
+          "catchUnfailableEffect": "error",
+          "schemaSyncInEffect": "error",
+          "scopeInLayerEffect": "error",
+          "preferSchemaOverJson": "error",
+          "instanceOfSchema": "error",
+          "newPromise": "error",
+          "nodeBuiltinImport": "error",
+          "importFromBarrel": "error",
+          "deterministicKeys": "error",
+          "serviceNotAsClass": "error",
+          "nestedEffectGenYield": "error",
+          "unnecessaryEffectGen": "error",
+          "unnecessaryFailYieldableError": "error",
+          "unnecessaryPipeChain": "error",
+          "effectSucceedWithVoid": "error",
+          "effectMapVoid": "error",
+          "flatMapToMap": "error",
+          "catchAllToMapError": "error"
+        }
+      }
+    ]
+  }
+}
