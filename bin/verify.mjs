@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 // why: lint rules only bind if nobody can quietly switch them off. This check fails the gate when a repo
 // why: weakens its lint, format or compiler settings, or disables a protected rule in source.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
@@ -178,9 +178,28 @@ function checkWorkspaceGraph(dirs) {
   root = repoRoot;
 }
 
+const FOREIGN_LOCKFILES = [
+  "package-lock.json",
+  "npm-shrinkwrap.json",
+  "pnpm-lock.yaml",
+  "yarn.lock",
+];
+
+function checkPackageManager(manifest) {
+  if (!String(manifest.packageManager ?? "").startsWith("bun@")) {
+    fail("package.json", 'must set "packageManager": "bun@<version>"; the house stack uses Bun');
+  }
+  for (const lockfile of FOREIGN_LOCKFILES) {
+    if (existsSync(join(repoRoot, lockfile))) {
+      fail(lockfile, "only bun.lock is allowed; delete it and run bun install");
+    }
+  }
+}
+
 const manifestPath = join(repoRoot, "package.json");
 const rootManifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, "utf8")) : {};
 checkFormatConfig();
+checkPackageManager(rootManifest);
 if (Array.isArray(rootManifest.workspaces)) {
   const dirs = workspaceDirs(rootManifest.workspaces);
   for (const dir of dirs) {

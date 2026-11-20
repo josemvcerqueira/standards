@@ -18,6 +18,6 @@ Start a new repo from [template-service](https://github.com/josemvcerqueira/temp
 { "extends": ["./node_modules/@interest-protocol/standards/oxlint/base.json"] }
 ```
 
-Change a rule: edit `scripts/build-presets.mjs`, run `npm run build:presets`, add a fixture and a line in `test/rules.test.mjs`, then `npm test`.
+Change a rule: edit `scripts/build-presets.mjs`, run `bun run build:presets`, add a fixture and a line in `test/rules.test.mjs`, then `bun test test/`.
 
 Release: bump `version`, tag `vX.Y.Z`, push the tag. Repos install `github:josemvcerqueira/standards#vX.Y.Z` and pick up rule changes by bumping that tag.
